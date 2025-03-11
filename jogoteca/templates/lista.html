@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+{% block conteudo %}
+      <table class="table table-striped table-responsive table-bordered">
+         <thead class="thead-default">
+            <tr>
+               <th>Nome</th>
+               <th>Categoria</th>
+               <th>Console</th>
+            </tr>
+        </thead>
+        <tbody>
+         {%for jogo in jogos%}
+         <!-- comando para abrir estrutura python em html + for -->
+           <tr>
+              <td>{{ jogo.nome }}</td>
+              <td>{{ jogo.categoria }}</td>
+              <td>{{ jogo.console }}</td>
+           </tr>
+           {% endfor %} 
+           <!-- comando para fechar o for -->
+        </tbody>
+     </table>
+{% endblock %}
