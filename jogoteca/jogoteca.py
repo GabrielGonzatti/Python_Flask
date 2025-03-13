@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 class jogo:
   def __init__(self, nome, categoria, console):
@@ -21,7 +21,7 @@ def novo():
     if 'logado' not in session or session['logado'] == None:
         print("Usuário não logado, redirecionando para login...")
         flash('É necessário fazer o login!')
-        return redirect('/login?proxima=novo')
+        return redirect(url_for('login', proxima=url_for('novo')))
     return render_template('novo.html', titulo='Novo Jogo') 
 @app.route('/criar', methods = ['POST',])
 def criar():
@@ -30,7 +30,7 @@ def criar():
   console = request.form['console']
   jogo_novo = jogo(nome, categoria, console)
   lista_jogos.append(jogo_novo)
-  return redirect('/') #redireciona para uma rota.
+  return redirect(url_for('index')) #redireciona para uma rota.
 
 @app.route('/login')
 def login():
@@ -42,15 +42,15 @@ def autenticar():
   if 'alohomora' == request.form['senha']:
     session['logado'] = request.form['usuario'] 
     proxima_pagina = request.form['proxima'] 
-    return redirect('/{}'.format(proxima_pagina))
+    return redirect(proxima_pagina)
   else:
     flash(f"Error - {session.get('logado', 'Usuário não logado')}")
-    return redirect('/login')
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
   flash(f"Usuário {session.get('logado', 'Usuário não logado')} deslogado com sucesso!")
   session['logado'] = None
-  return redirect('/login')
+  return redirect(url_for('index'))
 
 app.run(debug=True) #RUN para rodar o servidor e rota
