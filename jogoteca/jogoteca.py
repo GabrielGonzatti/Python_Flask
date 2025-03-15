@@ -11,6 +11,17 @@ jogo2 = jogo('God Of War', 'Rack n Slash', 'PS2')
 jogo3 = jogo('Mortal Kombat', 'Luta', 'PS2')
 lista_jogos = [jogo1, jogo2, jogo3]
 
+class Usuario:
+  def __init__(self, nome, nickname, senha):
+    self.nome = nome
+    self.nickname = nickname
+    self.senha = senha
+
+usuario1 = Usuario('Gabriel Gonzatti', 'Gonzatti', 'alohomora') 
+usuario2 = Usuario('Visitante','?','alohomora')
+
+usuarios = { usuario1.nickname : usuario1, usuario2.nickname : usuario2 }
+
 app = Flask(__name__) #SIGNIFICA: Cria uma instância do Flask onde podemos criar uma rota com nome do html:
 app.secret_key = 'alura'
 @app.route('/') # definir rota para o servidor
@@ -18,7 +29,7 @@ def index(): # definir função para executar com a rota
     return render_template('lista.html', titulo="Jogos", jogos = lista_jogos)
 @app.route('/novo')
 def novo():
-    if 'logado' not in session or session['logado'] == None:
+    if 'usuario_logado' not in session or session['usuario_logado'] == None:
         print("Usuário não logado, redirecionando para login...")
         flash('É necessário fazer o login!')
         return redirect(url_for('login', proxima=url_for('novo')))
@@ -39,18 +50,21 @@ def login():
 
 @app.route('/autenticar', methods = ['POST',])
 def autenticar():
-  if 'alohomora' == request.form['senha']:
-    session['logado'] = request.form['usuario'] 
-    proxima_pagina = request.form['proxima'] 
-    return redirect(proxima_pagina)
+  if request.form['usuario'] in usuarios:
+    usuario = usuarios[request.form['usuario']]
+    if request.form['senha'] == usuario.senha:
+      session['usuario_logado'] = usuario.nickname
+      flash(session['usuario_logado'] + ' logado com sucesso!')
+      proxima_pagina = request.form['proxima']
+      return redirect(proxima_pagina)
   else:
-    flash(f"Error - {session.get('logado', 'Usuário não logado')}")
-    return redirect(url_for('login'))
+      flash('Usuário não logado')
+      return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
-  flash(f"Usuário {session.get('logado', 'Usuário não logado')} deslogado com sucesso!")
-  session['logado'] = None
+  flash(f"Usuário {session.get('usuario_logado', 'Usuário não logado')} deslogado com sucesso!")
+  session['usuario_logado'] = None
   return redirect(url_for('index'))
 
 app.run(debug=True) #RUN para rodar o servidor e rota
